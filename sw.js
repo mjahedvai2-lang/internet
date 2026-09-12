@@ -1,68 +1,51 @@
-const CACHE_NAME = "gaming-network-helper-v1";
-
-const APP_FILES = [
-  "./",
-  "./index.html",
-  "./manifest.json",
-  "./icon-192.png",
-  "./icon-512-1.png"
+const CACHE_NAME = 'gaming-helper-cache-v1';
+const ASSETS_TO_CACHE = [
+  './',
+  './index.html',
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png',
+  './icon-512-maskable.png'
 ];
 
-self.addEventListener("install", event => {
+self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(APP_FILES);
-    })
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
   );
-
   self.skipWaiting();
 });
 
-self.addEventListener("activate", event => {
+self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then(keys => {
-      return Promise.all(
-        keys
-          .filter(key => key !== CACHE_NAME)
-          .map(key => caches.delete(key))
-      );
-    })
+    caches.keys().then((keys) =>
+      Promise.all(
+        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
+      )
+    )
   );
-
   self.clients.claim();
 });
 
-self.addEventListener("fetch", event => {
-  if (event.request.method !== "GET") {
+self.addEventListener('fetch', (event) => {
+  const req = event.request;
+
+  // Don't cache the live network-speed test requests
+  if (req.url.includes('speed.cloudflare.com')) {
     return;
   }
 
   event.respondWith(
-    caches.match(event.request).then(cachedResponse => {
-
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-
-      return fetch(event.request)
-        .then(response => {
-
-          if (!response || response.status !== 200) {
-            return response;
+    caches.match(req).then((cached) => {
+      const networkFetch = fetch(req)
+        .then((response) => {
+          if (req.method === 'GET' && response && response.status === 200) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(req, clone));
           }
-
-          const responseClone = response.clone();
-
-          caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, responseClone);
-          });
-
           return response;
         })
-        .catch(() => {
-          return caches.match("./index.html");
-        });
-
+        .catch(() => cached);
+      return cached || networkFetch;
     })
   );
 });

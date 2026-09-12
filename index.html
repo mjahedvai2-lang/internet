@@ -1,456 +1,137 @@
 <!doctype html>
 <html lang="bn">
 <head>
-
-<meta charset="utf-8">
-
-<meta
-  name="viewport"
-  content="width=device-width,initial-scale=1,user-scalable=no"
->
-
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
 <title>Gaming Network Helper</title>
-
-<meta
-  name="description"
-  content="Gaming Network Helper for network monitoring and safe gaming settings."
->
-
+<link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#7c5cff">
-
-<!-- PWA Manifest -->
-<link rel="manifest" href="./manifest.json">
-
-<!-- App Icon -->
-<link
-  rel="icon"
-  type="image/png"
-  sizes="192x192"
-  href="./icon-192.png"
->
-
+<meta name="description" content="Gaming Network Helper for network monitoring and safe gaming settings.">
+<link rel="icon" href="icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
+*{box-sizing:border-box}body{margin:0;background:#080b14;color:#fff;font-family:Arial,sans-serif}.app{max-width:520px;margin:auto;padding:22px 16px 35px}h1{font-size:27px;margin:8px 0}.sub{color:#9ca3af}.box,.card{background:#111827;border:1px solid #263044;border-radius:20px;padding:18px;margin-top:15px}.title{font-size:18px;font-weight:700;margin-bottom:12px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{background:#172033;border-radius:15px;padding:15px}.stat span{display:block;color:#9ca3af;font-size:12px;margin-bottom:7px}.stat b{font-size:18px}.btn{width:100%;border:0;border-radius:16px;padding:16px;margin-top:12px;background:#7c5cff;color:#fff;font-size:17px;font-weight:bold}.warn{color:#fbbf24;line-height:1.5}.ok{color:#20d890}.setting{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid #263044}.small{color:#9ca3af;font-size:13px;line-height:1.6}
+</style></head>
+<body><div class="app">
+<h1>🎮 Gaming Network Helper</h1><div class="sub">TECNO CN5 • Helio G200 Ultimate • 8 GB RAM</div>
 
-*{
-  box-sizing:border-box;
-}
+<div class="box"><div class="title">Network monitor</div>
+<div class="grid"><div class="stat"><span>Online</span><b id="online">Checking</b></div><div class="stat"><span>Connection</span><b id="conn">—</b></div><div class="stat"><span>Ping check</span><b id="ping">—</b></div><div class="stat"><span>Jitter</span><b id="jitter">—</b></div></div>
+<button class="btn" id="test" onclick="toggleMonitor()">START MONITORING</button>
+<p class="small" id="monStatus" style="margin-top:10px;text-align:center">মনিটরিং বন্ধ আছে। চালু করলে আপনি নিজে বন্ধ না করা পর্যন্ত এটা চলতেই থাকবে।</p></div>
 
-body{
-  margin:0;
-  background:#080b14;
-  color:#fff;
-  font-family:Arial,sans-serif;
-}
+<div class="box"><div class="title">🎯 Safe headshot setup</div>
+<div class="setting"><span>General</span><b>Recommended high</b></div>
+<div class="setting"><span>Red Dot</span><b>High</b></div>
+<div class="setting"><span>2× Scope</span><b>Medium–High</b></div>
+<div class="setting"><span>4× Scope</span><b>Medium</b></div>
+<div class="setting"><span>Free Look</span><b>High</b></div>
+<p class="small">Exact values should be tuned inside Free Fire because sensitivity depends on touch response, DPI and personal drag style. No auto-aim or game-file modification is used.</p></div>
 
-.app{
-  max-width:520px;
-  margin:auto;
-  padding:22px 16px 35px;
-}
-
-h1{
-  font-size:27px;
-  margin:8px 0;
-}
-
-.sub{
-  color:#9ca3af;
-}
-
-.box{
-  background:#111827;
-  border:1px solid #263044;
-  border-radius:20px;
-  padding:18px;
-  margin-top:15px;
-}
-
-.title{
-  font-size:18px;
-  font-weight:700;
-  margin-bottom:12px;
-}
-
-.grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-}
-
-.stat{
-  background:#172033;
-  border-radius:15px;
-  padding:15px;
-}
-
-.stat span{
-  display:block;
-  color:#9ca3af;
-  font-size:12px;
-  margin-bottom:7px;
-}
-
-.stat b{
-  font-size:18px;
-}
-
-.btn{
-  width:100%;
-  border:0;
-  border-radius:16px;
-  padding:16px;
-  margin-top:12px;
-  background:#7c5cff;
-  color:#fff;
-  font-size:17px;
-  font-weight:bold;
-}
-
-.btn:disabled{
-  opacity:.6;
-}
-
-.setting{
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-  padding:11px 0;
-  border-bottom:1px solid #263044;
-}
-
-.small{
-  color:#9ca3af;
-  font-size:13px;
-  line-height:1.6;
-}
-
-.ok{
-  color:#20d890;
-  line-height:1.7;
-}
-
-</style>
-
-</head>
-
-<body>
-
-<div class="app">
-
-<h1>🎮 Gaming Network Helper</h1>
-
-<div class="sub">
-TECNO CN5 • Helio G200 Ultimate • 8 GB RAM
+<div class="box"><div class="title">📱 Device gaming checklist</div>
+<div class="setting"><span>Battery saver</span><b>OFF while playing</b></div>
+<div class="setting"><span>Background apps</span><b>Close unnecessary apps</b></div>
+<div class="setting"><span>Storage</span><b>Keep free space</b></div>
+<div class="setting"><span>Game graphics</span><b>Prioritize stable FPS</b></div>
 </div>
 
-
-<!-- Network -->
-
-<div class="box">
-
-<div class="title">
-Network monitor
+<div class="box"><div class="title">🛡️ Account safety</div>
+<p class="ok">✓ No auto-aim<br>✓ No memory modification<br>✓ No game-file editing<br>✓ No injection or bypass</p>
+<p class="small">This helper cannot increase your carrier's physical speed or guarantee headshots. It helps you check conditions and tune legitimate settings.</p></div>
 </div>
-
-<div class="grid">
-
-<div class="stat">
-<span>Online</span>
-<b id="online">Checking</b>
-</div>
-
-<div class="stat">
-<span>Connection</span>
-<b id="conn">—</b>
-</div>
-
-<div class="stat">
-<span>Ping check</span>
-<b id="ping">—</b>
-</div>
-
-<div class="stat">
-<span>Jitter</span>
-<b id="jitter">—</b>
-</div>
-
-</div>
-
-<button
-  class="btn"
-  id="test"
-  onclick="testNetwork()"
->
-CHECK NETWORK
-</button>
-
-</div>
-
-
-<!-- Gaming settings -->
-
-<div class="box">
-
-<div class="title">
-🎯 Safe headshot setup
-</div>
-
-<div class="setting">
-<span>General</span>
-<b>Recommended high</b>
-</div>
-
-<div class="setting">
-<span>Red Dot</span>
-<b>High</b>
-</div>
-
-<div class="setting">
-<span>2× Scope</span>
-<b>Medium–High</b>
-</div>
-
-<div class="setting">
-<span>4× Scope</span>
-<b>Medium</b>
-</div>
-
-<div class="setting">
-<span>Free Look</span>
-<b>High</b>
-</div>
-
-<p class="small">
-Exact values should be tuned inside Free Fire because
-sensitivity depends on touch response, DPI and personal
-drag style. No auto-aim or game-file modification is used.
-</p>
-
-</div>
-
-
-<!-- Device -->
-
-<div class="box">
-
-<div class="title">
-📱 Device gaming checklist
-</div>
-
-<div class="setting">
-<span>Battery saver</span>
-<b>OFF while playing</b>
-</div>
-
-<div class="setting">
-<span>Background apps</span>
-<b>Close unnecessary apps</b>
-</div>
-
-<div class="setting">
-<span>Storage</span>
-<b>Keep free space</b>
-</div>
-
-<div class="setting">
-<span>Game graphics</span>
-<b>Prioritize stable FPS</b>
-</div>
-
-</div>
-
-
-<!-- Safety -->
-
-<div class="box">
-
-<div class="title">
-🛡️ Account safety
-</div>
-
-<p class="ok">
-✓ No auto-aim<br>
-✓ No memory modification<br>
-✓ No game-file editing<br>
-✓ No injection or bypass
-</p>
-
-<p class="small">
-This helper cannot increase your carrier's physical speed
-or guarantee headshots. It helps you check conditions and
-tune legitimate settings.
-</p>
-
-</div>
-
-</div>
-
-
 <script>
-
-/* =========================
-   Network information
-========================= */
-
-const $ = id => document.getElementById(id);
-
-
-function updateNetworkInfo(){
-
-  $("online").textContent =
-    navigator.onLine ? "ONLINE" : "OFFLINE";
-
-  const connection =
-    navigator.connection ||
-    navigator.mozConnection ||
-    navigator.webkitConnection;
-
-  $("conn").textContent =
-    connection
-      ? (connection.effectiveType || "unknown").toUpperCase()
-      : "—";
+const $=id=>document.getElementById(id);
+function update(){ $('online').textContent=navigator.onLine?'ONLINE':'OFFLINE'; let c=navigator.connection; $('conn').textContent=c?(c.effectiveType||'unknown').toUpperCase():'—';}
+update();window.addEventListener('online',update);window.addEventListener('offline',update);
+async function pingOnce(url, timeoutMs){
+ const controller = new AbortController();
+ const timer = setTimeout(()=>controller.abort(), timeoutMs);
+ const t = performance.now();
+ try{
+   await fetch(url, {cache:'no-store', mode:'no-cors', signal:controller.signal});
+   return performance.now() - t;
+ } finally {
+   clearTimeout(timer);
+ }
 }
 
+let isMonitoring = false;
+let monitorTimer = null;
+let wakeLock = null;
+let busy = false;
 
-updateNetworkInfo();
-
-window.addEventListener(
-  "online",
-  updateNetworkInfo
-);
-
-window.addEventListener(
-  "offline",
-  updateNetworkInfo
-);
-
-
-/* =========================
-   Network test
-========================= */
-
-async function testNetwork(){
-
-  const button = $("test");
-
-  button.disabled = true;
-  button.textContent = "CHECKING...";
-
-  const results = [];
-
-  try{
-
-    for(let i = 0; i < 5; i++){
-
-      const start = performance.now();
-
-      try{
-
-        await fetch(
-          "https://speed.cloudflare.com/__down?bytes=1&cache=" +
-          Date.now() +
-          "-" +
-          i,
-          {
-            cache:"no-store",
-            mode:"cors"
-          }
-        );
-
-        results.push(
-          performance.now() - start
-        );
-
-      }catch(error){
-
-        console.log(
-          "Network test failed:",
-          error
-        );
-
-      }
-
-    }
-
-
-    if(results.length > 0){
-
-      const average =
-        results.reduce(
-          (sum,value) => sum + value,
-          0
-        ) / results.length;
-
-
-      const jitter =
-        Math.sqrt(
-          results.reduce(
-            (sum,value) =>
-              sum + Math.pow(value - average, 2),
-            0
-          ) / results.length
-        );
-
-
-      $("ping").textContent =
-        Math.round(average) + " ms";
-
-      $("jitter").textContent =
-        Math.round(jitter) + " ms";
-
-    }else{
-
-      $("ping").textContent = "Failed";
-      $("jitter").textContent = "—";
-
-    }
-
-  }finally{
-
-    button.disabled = false;
-    button.textContent = "CHECK NETWORK";
-
-  }
-
+async function runOneCheck(){
+ if(busy) return; // skip overlap if a previous check is still running
+ busy = true;
+ if(!navigator.onLine){ $('ping').textContent='Offline'; $('jitter').textContent='—'; busy=false; return; }
+ const endpoints=[
+   (i)=>'https://speed.cloudflare.com/__down?bytes=1&cache='+Date.now()+'-'+i,
+   (i)=>'https://www.gstatic.com/generate_204?cache='+Date.now()+'-'+i
+ ];
+ let a=[];
+ try{
+   for(const makeUrl of endpoints){
+     a=[];
+     for(let i=0;i<4;i++){
+       try{ a.push(await pingOnce(makeUrl(i), 4000)); }
+       catch(e){ /* sample failed, try next */ }
+     }
+     if(a.length>=2) break;
+   }
+   if(a.length){
+     let p=a.reduce((x,y)=>x+y,0)/a.length;
+     let j=a.length>1?Math.sqrt(a.reduce((s,x)=>s+(x-p)**2,0)/a.length):0;
+     $('ping').textContent=Math.round(p)+' ms';
+     $('jitter').textContent=Math.round(j)+' ms';
+   } else {
+     $('ping').textContent='Failed';
+     $('jitter').textContent='—';
+   }
+ } finally {
+   busy = false;
+ }
 }
 
-
-/* =========================
-   Service Worker
-========================= */
-
-if("serviceWorker" in navigator){
-
-  window.addEventListener(
-    "load",
-    function(){
-
-      navigator.serviceWorker
-        .register("./sw.js", {
-          scope:"./"
-        })
-        .then(function(){
-
-          console.log(
-            "Gaming Network Helper Service Worker registered."
-          );
-
-        })
-        .catch(function(error){
-
-          console.error(
-            "Service Worker registration failed:",
-            error
-          );
-
-        });
-
-    }
-  );
-
+async function acquireWakeLock(){
+ try{
+   if('wakeLock' in navigator){ wakeLock = await navigator.wakeLock.request('screen'); }
+ }catch(e){ wakeLock = null; }
 }
 
-</script>
+function releaseWakeLock(){
+ if(wakeLock){ wakeLock.release().catch(()=>{}); wakeLock = null; }
+}
 
-</body>
-</html>
+function toggleMonitor(){
+ if(isMonitoring){ stopMonitor(); } else { startMonitor(); }
+}
+
+function startMonitor(){
+ isMonitoring = true;
+ $('test').textContent = 'STOP MONITORING';
+ $('monStatus').textContent = 'মনিটরিং চালু আছে — যতক্ষণ না আপনি নিজে বন্ধ করছেন ততক্ষণ চলবে।';
+ acquireWakeLock();
+ runOneCheck();
+ monitorTimer = setInterval(runOneCheck, 5000);
+}
+
+function stopMonitor(){
+ isMonitoring = false;
+ $('test').textContent = 'START MONITORING';
+ $('monStatus').textContent = 'মনিটরিং বন্ধ আছে। চালু করলে আপনি নিজে বন্ধ না করা পর্যন্ত এটা চলতেই থাকবে।';
+ if(monitorTimer){ clearInterval(monitorTimer); monitorTimer = null; }
+ releaseWakeLock();
+}
+
+// Screen wake lock is auto-released when the tab is hidden; re-acquire it
+// when the app comes back to the foreground while monitoring is still on.
+document.addEventListener('visibilitychange', () => {
+ if(document.visibilityState === 'visible' && isMonitoring && !wakeLock){
+   acquireWakeLock();
+ }
+});
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(err => console.error('SW registration failed:', err));
+  });
+}
+</script></body></html>
