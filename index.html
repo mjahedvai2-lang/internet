@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#080b14">
+<title>Real Speed Test - Gaming</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{background:#080b14;color:#fff;min-height:100vh;display:flex;justify-content:center}
+.app{width:100%;max-width:520px;min-height:100vh;padding:22px 18px 35px;text-align:center}
+h1{margin-top:20px;font-size:29px}.subtitle{color:#9ca3af;margin:8px 0 25px}
+.box{background:#111827;border:1px solid #263044;border-radius:28px;padding:28px 15px}
+.status{color:#aab2c8;font-size:15px;min-height:20px}.speed{font-size:52px;font-weight:700;margin:9px 0 0}
+.unit{color:#9ca3af;font-size:17px}.mbs{color:#7f8799;font-size:14px;margin-top:7px}
+button{width:100%;border:0;margin-top:20px;padding:18px;border-radius:18px;background:#7c5cff;color:#fff;font-size:18px;font-weight:bold}
+button.stop{background:#d84b5b}button:disabled{opacity:.7}
+.grid{margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.card{background:#111827;border:1px solid #263044;border-radius:18px;padding:17px 8px}
+.card span{display:block;color:#9ca3af;font-size:13px;margin-bottom:8px}.card strong{font-size:19px}
+.game{margin-top:20px;background:#111827;border:1px solid #263044;border-radius:20px;padding:18px}
+.game h2{font-size:18px;margin-bottom:14px}.row{display:flex;justify-content:space-between;padding:10px 2px;border-bottom:1px solid #202a3c}
+.row:last-child{border:0}.row span{color:#9ca3af}.row strong{font-size:17px}
+.note{margin-top:21px;color:#7f8799;font-size:13px;line-height:1.6}
+.bar{height:7px;background:#1a2233;border-radius:99px;margin-top:16px;overflow:hidden}.fill{height:100%;width:0%;background:#7c5cff}
+</style>
+</head>
+<body>
+<div class="app">
+<h1>Real Speed Test</h1>
+<p class="subtitle">Real network & gaming check</p>
+
+<div class="box">
+  <div class="status" id="status">Ready to test</div>
+  <div class="speed" id="speed">0.00</div>
+  <div class="unit">Mbps</div>
+  <div class="mbs" id="mbs">0.00 MB/s</div>
+  <div class="bar"><div class="fill" id="fill"></div></div>
+</div>
+
+<button id="btn" onclick="toggleTest()">START REAL TEST</button>
+
+<div class="grid">
+  <div class="card"><span>Current</span><strong id="current">0 Mbps</strong></div>
+  <div class="card"><span>Average</span><strong id="average">0 Mbps</strong></div>
+  <div class="card"><span>Maximum</span><strong id="maximum">0 Mbps</strong></div>
+  <div class="card"><span>Network</span><strong id="network">ONLINE</strong></div>
+</div>
+
+<div class="game">
+<h2>🎮 Gaming Network</h2>
+<div class="row"><span>Ping</span><strong id="ping">— ms</strong></div>
+<div class="row"><span>Jitter</span><strong id="jitter">— ms</strong></div>
+<div class="row"><span>Packet loss</span><strong id="loss">— %</strong></div>
+</div>
+
+<p class="note">
+This app measures your connection; it cannot increase your carrier/Wi-Fi speed.
+For Free Fire, low ping, low jitter and low packet loss are usually more important than extremely high download speed.
+The browser cannot reliably read the phone's exact 4G/5G radio mode.
+</p>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+let running=false,controller=null;
+
+function network(){
+  if(!navigator.onLine){$("network").textContent="OFFLINE";return}
+  const c=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
+  $("network").textContent=(c&&c.downlink)?`~${c.downlink} Mbps`:"ONLINE";
+}
+network(); addEventListener("online",network); addEventListener("offline",network);
+
+function reset(){
+ $("speed").textContent="0.00";$("mbs").textContent="0.00 MB/s";
+ $("current").textContent="0 Mbps";$("average").textContent="0 Mbps";
+ $("maximum").textContent="0 Mbps";$("ping").textContent="— ms";
+ $("jitter").textContent="— ms";$("loss").textContent="— %";
+ $("fill").style.width="0%";
+}
+
+async function pingTest(signal){
+ const times=[]; let failed=0;
+ $("status").textContent="Checking gaming latency...";
+ for(let i=0;i<8;i++){
+   if(signal.aborted) throw new DOMException("Stopped","AbortError");
+   const t=performance.now();
+   try{
+     const r=await fetch("https://speed.cloudflare.com/__down?bytes=1&cache="+Date.now()+"-"+i,
+       {cache:"no-store",signal});
+     if(!r.ok) throw new Error();
+     await r.arrayBuffer();
+     times.push(performance.now()-t);
+   }catch(e){
+     if(e.name==="AbortError") throw e;
+     failed++;
+   }
+ }
+ if(times.length){
+   const avg=times.reduce((a,b)=>a+b,0)/times.length;
+   const jit=times.length>1?Math.sqrt(times.reduce((s,x)=>s+(x-avg)**2,0)/times.length):0;
+   $("ping").textContent=Math.round(avg)+" ms";
+   $("jitter").textContent=Math.round(jit)+" ms";
+ }
+ $("loss").textContent=((failed/8)*100).toFixed(0)+" %";
+}
+
+async function start(){
+ if(!navigator.onLine){$("status").textContent="No internet connection";return}
+ running=true;controller=new AbortController();reset();
+ $("btn").textContent="STOP TEST";$("btn").classList.add("stop");
+ try{
+   await pingTest(controller.signal);
+   if(controller.signal.aborted)return;
+
+   $("status").textContent="Testing real download speed...";
+   const res=await fetch("https://speed.cloudflare.com/__down?bytes=50000000&cache="+Date.now(),
+     {cache:"no-store",signal:controller.signal});
+   if(!res.ok||!res.body)throw new Error("server");
+
+   const reader=res.body.getReader();
+   let received=0,lastBytes=0,last=performance.now(),start=last;
+   const samples=[];let max=0;
+
+   while(true){
+     const {done,value}=await reader.read(); if(done)break;
+     received+=value.byteLength;
+     const now=performance.now(),dt=(now-last)/1000;
+     if(dt>=.2){
+       const mbps=((received-lastBytes)*8/dt)/1e6;
+       if(isFinite(mbps)&&mbps>0){
+         samples.push(mbps);max=Math.max(max,mbps);
+         const avg=samples.reduce((a,b)=>a+b,0)/samples.length;
+         $("speed").textContent=mbps.toFixed(2);
+         $("mbs").textContent=(mbps/8).toFixed(2)+" MB/s";
+         $("current").textContent=mbps.toFixed(2)+" Mbps";
+         $("average").textContent=avg.toFixed(2)+" Mbps";
+         $("maximum").textContent=max.toFixed(2)+" Mbps";
+         $("fill").style.width=Math.min(100,((now-start)/10000)*100)+"%";
+       }
+       last=now;lastBytes=received;
+     }
+     if(now-start>=10000){controller.abort();break}
+   }
+
+   const seconds=(performance.now()-start)/1000;
+   if(received>0&&seconds>0){
+     const final=(received*8/seconds)/1e6;
+     $("speed").textContent=final.toFixed(2);
+     $("mbs").textContent=(final/8).toFixed(2)+" MB/s";
+     $("current").textContent=final.toFixed(2)+" Mbps";
+     if(samples.length)$("average").textContent=(samples.reduce((a,b)=>a+b,0)/samples.length).toFixed(2)+" Mbps";
+     $("maximum").textContent=Math.max(max,final).toFixed(2)+" Mbps";
+     $("fill").style.width="100%";$("status").textContent="Real test completed";
+   }
+ }catch(e){
+   $("status").textContent=e.name==="AbortError"?"Test stopped":"Test failed — check internet and try again.";
+ }finally{
+   running=false;controller=null;$("btn").textContent="TEST AGAIN";$("btn").classList.remove("stop");
+ }
+}
+function toggleTest(){if(running&&controller)controller.abort();else start()}
+</script>
+</body>
+</html>
