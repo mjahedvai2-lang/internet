@@ -1,45 +1,356 @@
 <!doctype html>
 <html lang="bn">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
 <title>Gaming Network Helper</title>
+
+<meta name="description" content="Gaming Network Helper - network monitor and safe gaming settings helper.">
+<meta name="theme-color" content="#7c5cff">
+
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+
 <style>
-*{box-sizing:border-box}body{margin:0;background:#080b14;color:#fff;font-family:Arial,sans-serif}.app{max-width:520px;margin:auto;padding:22px 16px 35px}h1{font-size:27px;margin:8px 0}.sub{color:#9ca3af}.box,.card{background:#111827;border:1px solid #263044;border-radius:20px;padding:18px;margin-top:15px}.title{font-size:18px;font-weight:700;margin-bottom:12px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{background:#172033;border-radius:15px;padding:15px}.stat span{display:block;color:#9ca3af;font-size:12px;margin-bottom:7px}.stat b{font-size:18px}.btn{width:100%;border:0;border-radius:16px;padding:16px;margin-top:12px;background:#7c5cff;color:#fff;font-size:17px;font-weight:bold}.warn{color:#fbbf24;line-height:1.5}.ok{color:#20d890}.setting{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid #263044}.small{color:#9ca3af;font-size:13px;line-height:1.6}
-</style></head>
-<body><div class="app">
-<h1>🎮 Gaming Network Helper</h1><div class="sub">TECNO CN5 • Helio G200 Ultimate • 8 GB RAM</div>
+*{box-sizing:border-box}
 
-<div class="box"><div class="title">Network monitor</div>
-<div class="grid"><div class="stat"><span>Online</span><b id="online">Checking</b></div><div class="stat"><span>Connection</span><b id="conn">—</b></div><div class="stat"><span>Ping check</span><b id="ping">—</b></div><div class="stat"><span>Jitter</span><b id="jitter">—</b></div></div>
-<button class="btn" id="test" onclick="testNetwork()">CHECK NETWORK</button></div>
-
-<div class="box"><div class="title">🎯 Safe headshot setup</div>
-<div class="setting"><span>General</span><b>Recommended high</b></div>
-<div class="setting"><span>Red Dot</span><b>High</b></div>
-<div class="setting"><span>2× Scope</span><b>Medium–High</b></div>
-<div class="setting"><span>4× Scope</span><b>Medium</b></div>
-<div class="setting"><span>Free Look</span><b>High</b></div>
-<p class="small">Exact values should be tuned inside Free Fire because sensitivity depends on touch response, DPI and personal drag style. No auto-aim or game-file modification is used.</p></div>
-
-<div class="box"><div class="title">📱 Device gaming checklist</div>
-<div class="setting"><span>Battery saver</span><b>OFF while playing</b></div>
-<div class="setting"><span>Background apps</span><b>Close unnecessary apps</b></div>
-<div class="setting"><span>Storage</span><b>Keep free space</b></div>
-<div class="setting"><span>Game graphics</span><b>Prioritize stable FPS</b></div>
-</div>
-
-<div class="box"><div class="title">🛡️ Account safety</div>
-<p class="ok">✓ No auto-aim<br>✓ No memory modification<br>✓ No game-file editing<br>✓ No injection or bypass</p>
-<p class="small">This helper cannot increase your carrier's physical speed or guarantee headshots. It helps you check conditions and tune legitimate settings.</p></div>
-</div>
-<script>
-const $=id=>document.getElementById(id);
-function update(){ $('online').textContent=navigator.onLine?'ONLINE':'OFFLINE'; let c=navigator.connection; $('conn').textContent=c?(c.effectiveType||'unknown').toUpperCase():'—';}
-update();window.addEventListener('online',update);window.addEventListener('offline',update);
-async function testNetwork(){
- $('test').disabled=true;$('test').textContent='CHECKING...';let a=[],fails=0;
- try{for(let i=0;i<8;i++){let t=performance.now();try{let r=await fetch('https://speed.cloudflare.com/__down?bytes=1&cache='+Date.now()+'-'+i,{cache:'no-store'});await r.arrayBuffer();a.push(performance.now()-t)}catch(e){fails++;}}
- if(a.length){let p=a.reduce((x,y)=>x+y,0)/a.length,j=Math.sqrt(a.reduce((s,x)=>s+(x-p)**2,0)/a.length);$('ping').textContent=Math.round(p)+' ms';$('jitter').textContent=Math.round(j)+' ms';}else{$('ping').textContent='Failed';$('jitter').textContent='—';}
- }finally{$('test').disabled=false;$('test').textContent='CHECK NETWORK';}
+body{
+  margin:0;
+  background:#080b14;
+  color:#fff;
+  font-family:Arial,sans-serif
 }
-</script></body></html>
+
+.app{
+  max-width:520px;
+  margin:auto;
+  padding:22px 16px 35px
+}
+
+h1{
+  font-size:27px;
+  margin:8px 0
+}
+
+.sub{
+  color:#9ca3af
+}
+
+.box,.card{
+  background:#111827;
+  border:1px solid #263044;
+  border-radius:20px;
+  padding:18px;
+  margin-top:15px
+}
+
+.title{
+  font-size:18px;
+  font-weight:700;
+  margin-bottom:12px
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px
+}
+
+.stat{
+  background:#172033;
+  border-radius:15px;
+  padding:15px
+}
+
+.stat span{
+  display:block;
+  color:#9ca3af;
+  font-size:12px;
+  margin-bottom:7px
+}
+
+.stat b{
+  font-size:18px
+}
+
+.btn{
+  width:100%;
+  border:0;
+  border-radius:16px;
+  padding:16px;
+  margin-top:12px;
+  background:#7c5cff;
+  color:#fff;
+  font-size:17px;
+  font-weight:bold
+}
+
+.btn:disabled{
+  opacity:.6
+}
+
+.warn{
+  color:#fbbf24;
+  line-height:1.5
+}
+
+.ok{
+  color:#20d890
+}
+
+.setting{
+  display:flex;
+  justify-content:space-between;
+  padding:11px 0;
+  border-bottom:1px solid #263044
+}
+
+.small{
+  color:#9ca3af;
+  font-size:13px;
+  line-height:1.6
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<h1>🎮 Gaming Network Helper</h1>
+
+<div class="sub">
+TECNO CN5 • Helio G200 Ultimate • 8 GB RAM
+</div>
+
+<div class="box">
+  <div class="title">Network monitor</div>
+
+  <div class="grid">
+
+    <div class="stat">
+      <span>Online</span>
+      <b id="online">Checking</b>
+    </div>
+
+    <div class="stat">
+      <span>Connection</span>
+      <b id="conn">—</b>
+    </div>
+
+    <div class="stat">
+      <span>Ping check</span>
+      <b id="ping">—</b>
+    </div>
+
+    <div class="stat">
+      <span>Jitter</span>
+      <b id="jitter">—</b>
+    </div>
+
+  </div>
+
+  <button class="btn" id="test" onclick="testNetwork()">
+    CHECK NETWORK
+  </button>
+</div>
+
+
+<div class="box">
+
+  <div class="title">🎯 Safe headshot setup</div>
+
+  <div class="setting">
+    <span>General</span>
+    <b>Recommended high</b>
+  </div>
+
+  <div class="setting">
+    <span>Red Dot</span>
+    <b>High</b>
+  </div>
+
+  <div class="setting">
+    <span>2× Scope</span>
+    <b>Medium–High</b>
+  </div>
+
+  <div class="setting">
+    <span>4× Scope</span>
+    <b>Medium</b>
+  </div>
+
+  <div class="setting">
+    <span>Free Look</span>
+    <b>High</b>
+  </div>
+
+  <p class="small">
+    Exact values should be tuned inside Free Fire because
+    sensitivity depends on touch response, DPI and personal
+    drag style. No auto-aim or game-file modification is used.
+  </p>
+
+</div>
+
+
+<div class="box">
+
+  <div class="title">📱 Device gaming checklist</div>
+
+  <div class="setting">
+    <span>Battery saver</span>
+    <b>OFF while playing</b>
+  </div>
+
+  <div class="setting">
+    <span>Background apps</span>
+    <b>Close unnecessary apps</b>
+  </div>
+
+  <div class="setting">
+    <span>Storage</span>
+    <b>Keep free space</b>
+  </div>
+
+  <div class="setting">
+    <span>Game graphics</span>
+    <b>Prioritize stable FPS</b>
+  </div>
+
+</div>
+
+
+<div class="box">
+
+  <div class="title">🛡️ Account safety</div>
+
+  <p class="ok">
+    ✓ No auto-aim<br>
+    ✓ No memory modification<br>
+    ✓ No game-file editing<br>
+    ✓ No injection or bypass
+  </p>
+
+  <p class="small">
+    This helper cannot increase your carrier's physical speed
+    or guarantee headshots. It helps you check conditions and
+    tune legitimate settings.
+  </p>
+
+</div>
+
+</div>
+
+
+<script>
+
+const $ = id => document.getElementById(id);
+
+
+function update(){
+
+  $('online').textContent =
+    navigator.onLine ? 'ONLINE' : 'OFFLINE';
+
+  let c = navigator.connection;
+
+  $('conn').textContent =
+    c ? (c.effectiveType || 'unknown').toUpperCase() : '—';
+}
+
+
+update();
+
+window.addEventListener('online', update);
+window.addEventListener('offline', update);
+
+
+async function testNetwork(){
+
+  $('test').disabled = true;
+  $('test').textContent = 'CHECKING...';
+
+  let a = [];
+
+  try{
+
+    for(let i = 0; i < 8; i++){
+
+      let t = performance.now();
+
+      try{
+
+        let r = await fetch(
+          'https://speed.cloudflare.com/__down?bytes=1&cache='
+          + Date.now() + '-' + i,
+          {
+            cache:'no-store'
+          }
+        );
+
+        await r.arrayBuffer();
+
+        a.push(performance.now() - t);
+
+      }catch(e){}
+
+    }
+
+
+    if(a.length){
+
+      let p =
+        a.reduce((x,y) => x+y,0) / a.length;
+
+      let j =
+        Math.sqrt(
+          a.reduce((s,x) => s + (x-p)**2,0) / a.length
+        );
+
+      $('ping').textContent =
+        Math.round(p) + ' ms';
+
+      $('jitter').textContent =
+        Math.round(j) + ' ms';
+
+    }else{
+
+      $('ping').textContent = 'Failed';
+      $('jitter').textContent = '—';
+
+    }
+
+  }finally{
+
+    $('test').disabled = false;
+    $('test').textContent = 'CHECK NETWORK';
+
+  }
+}
+
+
+/* Register Service Worker */
+
+if('serviceWorker' in navigator){
+
+  window.addEventListener('load', () => {
+
+    navigator.serviceWorker
+      .register('./sw.js')
+      .then(() => {
+        console.log('Service Worker registered successfully');
+      })
+      .catch((error) => {
+        console.error('Service Worker registration failed:', error);
+      });
+
+  });
+
+}
+
+</script>
+
+</body>
+</html>
