@@ -1,77 +1,97 @@
 <!doctype html>
 <html lang="bn">
 <head>
+
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1,user-scalable=no"
+>
 
 <title>Gaming Network Helper</title>
 
-<meta name="description" content="Gaming Network Helper - network monitor and safe gaming settings helper.">
+<meta
+  name="description"
+  content="Gaming Network Helper for network monitoring and safe gaming settings."
+>
+
 <meta name="theme-color" content="#7c5cff">
 
+<!-- PWA Manifest -->
 <link rel="manifest" href="./manifest.json">
-<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+
+<!-- App Icon -->
+<link
+  rel="icon"
+  type="image/png"
+  sizes="192x192"
+  href="./icon-192.png"
+>
 
 <style>
-*{box-sizing:border-box}
+
+*{
+  box-sizing:border-box;
+}
 
 body{
   margin:0;
   background:#080b14;
   color:#fff;
-  font-family:Arial,sans-serif
+  font-family:Arial,sans-serif;
 }
 
 .app{
   max-width:520px;
   margin:auto;
-  padding:22px 16px 35px
+  padding:22px 16px 35px;
 }
 
 h1{
   font-size:27px;
-  margin:8px 0
+  margin:8px 0;
 }
 
 .sub{
-  color:#9ca3af
+  color:#9ca3af;
 }
 
-.box,.card{
+.box{
   background:#111827;
   border:1px solid #263044;
   border-radius:20px;
   padding:18px;
-  margin-top:15px
+  margin-top:15px;
 }
 
 .title{
   font-size:18px;
   font-weight:700;
-  margin-bottom:12px
+  margin-bottom:12px;
 }
 
 .grid{
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:10px
+  gap:10px;
 }
 
 .stat{
   background:#172033;
   border-radius:15px;
-  padding:15px
+  padding:15px;
 }
 
 .stat span{
   display:block;
   color:#9ca3af;
   font-size:12px;
-  margin-bottom:7px
+  margin-bottom:7px;
 }
 
 .stat b{
-  font-size:18px
+  font-size:18px;
 }
 
 .btn{
@@ -83,35 +103,34 @@ h1{
   background:#7c5cff;
   color:#fff;
   font-size:17px;
-  font-weight:bold
+  font-weight:bold;
 }
 
 .btn:disabled{
-  opacity:.6
-}
-
-.warn{
-  color:#fbbf24;
-  line-height:1.5
-}
-
-.ok{
-  color:#20d890
+  opacity:.6;
 }
 
 .setting{
   display:flex;
   justify-content:space-between;
+  gap:10px;
   padding:11px 0;
-  border-bottom:1px solid #263044
+  border-bottom:1px solid #263044;
 }
 
 .small{
   color:#9ca3af;
   font-size:13px;
-  line-height:1.6
+  line-height:1.6;
 }
+
+.ok{
+  color:#20d890;
+  line-height:1.7;
+}
+
 </style>
+
 </head>
 
 <body>
@@ -124,120 +143,143 @@ h1{
 TECNO CN5 • Helio G200 Ultimate • 8 GB RAM
 </div>
 
+
+<!-- Network -->
+
 <div class="box">
-  <div class="title">Network monitor</div>
 
-  <div class="grid">
-
-    <div class="stat">
-      <span>Online</span>
-      <b id="online">Checking</b>
-    </div>
-
-    <div class="stat">
-      <span>Connection</span>
-      <b id="conn">—</b>
-    </div>
-
-    <div class="stat">
-      <span>Ping check</span>
-      <b id="ping">—</b>
-    </div>
-
-    <div class="stat">
-      <span>Jitter</span>
-      <b id="jitter">—</b>
-    </div>
-
-  </div>
-
-  <button class="btn" id="test" onclick="testNetwork()">
-    CHECK NETWORK
-  </button>
+<div class="title">
+Network monitor
 </div>
 
+<div class="grid">
 
-<div class="box">
+<div class="stat">
+<span>Online</span>
+<b id="online">Checking</b>
+</div>
 
-  <div class="title">🎯 Safe headshot setup</div>
+<div class="stat">
+<span>Connection</span>
+<b id="conn">—</b>
+</div>
 
-  <div class="setting">
-    <span>General</span>
-    <b>Recommended high</b>
-  </div>
+<div class="stat">
+<span>Ping check</span>
+<b id="ping">—</b>
+</div>
 
-  <div class="setting">
-    <span>Red Dot</span>
-    <b>High</b>
-  </div>
+<div class="stat">
+<span>Jitter</span>
+<b id="jitter">—</b>
+</div>
 
-  <div class="setting">
-    <span>2× Scope</span>
-    <b>Medium–High</b>
-  </div>
+</div>
 
-  <div class="setting">
-    <span>4× Scope</span>
-    <b>Medium</b>
-  </div>
-
-  <div class="setting">
-    <span>Free Look</span>
-    <b>High</b>
-  </div>
-
-  <p class="small">
-    Exact values should be tuned inside Free Fire because
-    sensitivity depends on touch response, DPI and personal
-    drag style. No auto-aim or game-file modification is used.
-  </p>
+<button
+  class="btn"
+  id="test"
+  onclick="testNetwork()"
+>
+CHECK NETWORK
+</button>
 
 </div>
 
 
+<!-- Gaming settings -->
+
 <div class="box">
 
-  <div class="title">📱 Device gaming checklist</div>
+<div class="title">
+🎯 Safe headshot setup
+</div>
 
-  <div class="setting">
-    <span>Battery saver</span>
-    <b>OFF while playing</b>
-  </div>
+<div class="setting">
+<span>General</span>
+<b>Recommended high</b>
+</div>
 
-  <div class="setting">
-    <span>Background apps</span>
-    <b>Close unnecessary apps</b>
-  </div>
+<div class="setting">
+<span>Red Dot</span>
+<b>High</b>
+</div>
 
-  <div class="setting">
-    <span>Storage</span>
-    <b>Keep free space</b>
-  </div>
+<div class="setting">
+<span>2× Scope</span>
+<b>Medium–High</b>
+</div>
 
-  <div class="setting">
-    <span>Game graphics</span>
-    <b>Prioritize stable FPS</b>
-  </div>
+<div class="setting">
+<span>4× Scope</span>
+<b>Medium</b>
+</div>
+
+<div class="setting">
+<span>Free Look</span>
+<b>High</b>
+</div>
+
+<p class="small">
+Exact values should be tuned inside Free Fire because
+sensitivity depends on touch response, DPI and personal
+drag style. No auto-aim or game-file modification is used.
+</p>
 
 </div>
 
 
+<!-- Device -->
+
 <div class="box">
 
-  <div class="title">🛡️ Account safety</div>
+<div class="title">
+📱 Device gaming checklist
+</div>
 
-  <p class="ok">
-    ✓ No auto-aim<br>
-    ✓ No memory modification<br>
-    ✓ No game-file editing<br>
-    ✓ No injection or bypass
-  </p>
+<div class="setting">
+<span>Battery saver</span>
+<b>OFF while playing</b>
+</div>
 
-  <p class="small">
-    This helper cannot increase your carrier's physical speed
-    or guarantee headshots. It helps you check conditions and
-    tune legitimate settings.
-  </p>
+<div class="setting">
+<span>Background apps</span>
+<b>Close unnecessary apps</b>
+</div>
+
+<div class="setting">
+<span>Storage</span>
+<b>Keep free space</b>
+</div>
+
+<div class="setting">
+<span>Game graphics</span>
+<b>Prioritize stable FPS</b>
+</div>
+
+</div>
+
+
+<!-- Safety -->
+
+<div class="box">
+
+<div class="title">
+🛡️ Account safety
+</div>
+
+<p class="ok">
+✓ No auto-aim<br>
+✓ No memory modification<br>
+✓ No game-file editing<br>
+✓ No injection or bypass
+</p>
+
+<p class="small">
+This helper cannot increase your carrier's physical speed
+or guarantee headshots. It helps you check conditions and
+tune legitimate settings.
+</p>
 
 </div>
 
@@ -246,107 +288,165 @@ TECNO CN5 • Helio G200 Ultimate • 8 GB RAM
 
 <script>
 
+/* =========================
+   Network information
+========================= */
+
 const $ = id => document.getElementById(id);
 
 
-function update(){
+function updateNetworkInfo(){
 
-  $('online').textContent =
-    navigator.onLine ? 'ONLINE' : 'OFFLINE';
+  $("online").textContent =
+    navigator.onLine ? "ONLINE" : "OFFLINE";
 
-  let c = navigator.connection;
+  const connection =
+    navigator.connection ||
+    navigator.mozConnection ||
+    navigator.webkitConnection;
 
-  $('conn').textContent =
-    c ? (c.effectiveType || 'unknown').toUpperCase() : '—';
+  $("conn").textContent =
+    connection
+      ? (connection.effectiveType || "unknown").toUpperCase()
+      : "—";
 }
 
 
-update();
+updateNetworkInfo();
 
-window.addEventListener('online', update);
-window.addEventListener('offline', update);
+window.addEventListener(
+  "online",
+  updateNetworkInfo
+);
 
+window.addEventListener(
+  "offline",
+  updateNetworkInfo
+);
+
+
+/* =========================
+   Network test
+========================= */
 
 async function testNetwork(){
 
-  $('test').disabled = true;
-  $('test').textContent = 'CHECKING...';
+  const button = $("test");
 
-  let a = [];
+  button.disabled = true;
+  button.textContent = "CHECKING...";
+
+  const results = [];
 
   try{
 
-    for(let i = 0; i < 8; i++){
+    for(let i = 0; i < 5; i++){
 
-      let t = performance.now();
+      const start = performance.now();
 
       try{
 
-        let r = await fetch(
-          'https://speed.cloudflare.com/__down?bytes=1&cache='
-          + Date.now() + '-' + i,
+        await fetch(
+          "https://speed.cloudflare.com/__down?bytes=1&cache=" +
+          Date.now() +
+          "-" +
+          i,
           {
-            cache:'no-store'
+            cache:"no-store",
+            mode:"cors"
           }
         );
 
-        await r.arrayBuffer();
+        results.push(
+          performance.now() - start
+        );
 
-        a.push(performance.now() - t);
+      }catch(error){
 
-      }catch(e){}
+        console.log(
+          "Network test failed:",
+          error
+        );
+
+      }
 
     }
 
 
-    if(a.length){
+    if(results.length > 0){
 
-      let p =
-        a.reduce((x,y) => x+y,0) / a.length;
+      const average =
+        results.reduce(
+          (sum,value) => sum + value,
+          0
+        ) / results.length;
 
-      let j =
+
+      const jitter =
         Math.sqrt(
-          a.reduce((s,x) => s + (x-p)**2,0) / a.length
+          results.reduce(
+            (sum,value) =>
+              sum + Math.pow(value - average, 2),
+            0
+          ) / results.length
         );
 
-      $('ping').textContent =
-        Math.round(p) + ' ms';
 
-      $('jitter').textContent =
-        Math.round(j) + ' ms';
+      $("ping").textContent =
+        Math.round(average) + " ms";
+
+      $("jitter").textContent =
+        Math.round(jitter) + " ms";
 
     }else{
 
-      $('ping').textContent = 'Failed';
-      $('jitter').textContent = '—';
+      $("ping").textContent = "Failed";
+      $("jitter").textContent = "—";
 
     }
 
   }finally{
 
-    $('test').disabled = false;
-    $('test').textContent = 'CHECK NETWORK';
+    button.disabled = false;
+    button.textContent = "CHECK NETWORK";
 
   }
+
 }
 
 
-/* Register Service Worker */
+/* =========================
+   Service Worker
+========================= */
 
-if('serviceWorker' in navigator){
+if("serviceWorker" in navigator){
 
-  window.addEventListener('load', () => {
+  window.addEventListener(
+    "load",
+    function(){
 
-    navigator.serviceWorker
-      .register('./sw.js')
-      .then(() => {
-        console.log('Service Worker registered successfully');
-      })
-      .catch((error) => {
-        console.error('Service Worker registration failed:', error);
-      });
+      navigator.serviceWorker
+        .register("./sw.js", {
+          scope:"./"
+        })
+        .then(function(){
 
-  });
+          console.log(
+            "Gaming Network Helper Service Worker registered."
+          );
+
+        })
+        .catch(function(error){
+
+          console.error(
+            "Service Worker registration failed:",
+            error
+          );
+
+        });
+
+    }
+  );
 
 }
 
