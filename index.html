@@ -1,1 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#080b14">
+<title>Real Speed Test</title>
 
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#080b14;
+    color:white;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.app{
+    width:100%;
+    max-width:500px;
+    min-height:100vh;
+    padding:25px 18px;
+    text-align:center;
+}
+
+h1{
+    margin-top:25px;
+    font-size:28px;
+}
+
+.subtitle{
+    color:#9ca3af;
+    margin-top:8px;
+    margin-bottom:30px;
+}
+
+.speed-box{
+    background:#111827;
+    border:1px solid #263044;
+    border-radius:28px;
+    padding:35px 15px;
+}
+
+.status{
+    color:#aab2c8;
+    font-size:15px;
+    margin-bottom:10px;
+}
+
+.speed{
+    font-size:55px;
+    font-weight:bold;
+    margin:10px 0;
+    word-break:break-word;
+}
+
+.unit{
+    color:#9ca3af;
+    font-size:18px;
+}
+
+.target{
+    margin-top:20px;
+    background:#172033;
+    padding:14px;
+    border-radius:15px;
+    color:#b8c1d8;
+}
+
+.target strong{
+    color:#20d890;
+}
+
+button{
+    width:100%;
+    border:none;
+    margin-top:25px;
+    padding:18px;
+    border-radius:18px;
+    background:#7c5cff;
+    color:white;
+    font-size:18px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+button:disabled{
+    opacity:.6;
+    cursor:not-allowed;
+}
+
+.info{
+    margin-top:25px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+}
+
+.card{
+    background:#111827;
+    border:1px solid #263044;
+    border-radius:18px;
+    padding:18px 10px;
+}
+
+.card span{
+    display:block;
+    color:#9ca3af;
+    font-size:13px;
+    margin-bottom:8px;
+}
+
+.card strong{
+    font-size:20px;
+}
+
+.note{
+    margin-top:25px;
+    color:#7f8799;
+    font-size:13px;
+    line-height:1.6;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<h1>Real Speed Test</h1>
+
+<p class="subtitle">
+Test your actual download speed
+</p>
+
+<div class="speed-box">
+
+<div class="status" id="status">
+Ready to test
+</div>
+
+<div class="speed" id="speed">
+0.00
+</div>
+
+<div class="unit">
+MB/s
+</div>
+
+<div class="target">
+Target: <strong>1800 MB/s</strong>
+</div>
+
+</div>
+
+<button id="startBtn" onclick="startSpeedTest()">
+START REAL TEST
+</button>
+
+<div class="info">
+
+<div class="card">
+<span>Current</span>
+<strong id="current">0 MB/s</strong>
+</div>
+
+<div class="card">
+<span>Average</span>
+<strong id="average">0 MB/s</strong>
+</div>
+
+<div class="card">
+<span>Maximum</span>
+<strong id="maximum">0 MB/s</strong>
+</div>
+
+<div class="card">
+<span>Connection</span>
+<strong id="connection">Checking...</strong>
+</div>
+
+</div>
+
+<p class="note">
+This app measures the speed achieved during the test.
+Actual speed depends on your internet connection,
+server, device, and network conditions.
+</p>
+
+</div>
+
+<script>
+
+const speedEl = document.getElementById("speed");
+const statusEl = document.getElementById("status");
+const currentEl = document.getElementById("current");
+const averageEl = document.getElementById("average");
+const maximumEl = document.getElementById("maximum");
+const connectionEl = document.getElementById("connection");
+const startBtn = document.getElementById("startBtn");
+
+
+function checkConnection(){
+
+    if(navigator.connection){
+
+        let type = navigator.connection.effectiveType || "Unknown";
+
+        connectionEl.textContent = type.toUpperCase();
+
+    }else{
+
+        connectionEl.textContent = navigator.onLine
+        ? "ONLINE"
+        : "OFFLINE";
+
+    }
+
+}
+
+checkConnection();
+
+
+async function startSpeedTest(){
+
+    if(!navigator.onLine){
+
+        statusEl.textContent = "No internet connection";
+
+        return;
+
+    }
+
+    startBtn.disabled = true;
+
+    startBtn.textContent = "TESTING...";
+
+    statusEl.textContent = "Connecting to test server...";
+
+    speedEl.textContent = "0.00";
+
+    currentEl.textContent = "0 MB/s";
+
+    averageEl.textContent = "0 MB/s";
+
+    maximumEl.textContent = "0 MB/s";
+
+
+    let speeds = [];
+
+    let maxSpeed = 0;
+
+
+    try{
+
+        /*
+        Large downloadable test file.
+        A timestamp is added to reduce cached results.
+        */
+
+        const url =
+        "https://speed.cloudflare.com/__down?bytes=50000000&cache=" +
+        Date.now();
+
+
+        const startTime = performance.now();
+
+
+        const response = await fetch(
+            url,
+            {
+                cache:"no-store"
+            }
+        );
+
+
+        if(!response.ok){
+
+            throw new Error("Server error");
+
+        }
+
+
+        const reader =
+        response.body.getReader();
+
+
+        let received = 0;
+
+        let lastTime = startTime;
+
+        let lastBytes = 0;
+
+
+        statusEl.textContent =
+        "Testing real download speed...";
+
+
+        while(true){
+
+            const result =
+            await reader.read();
+
+
+            if(result.done){
+
+                break;
+
+            }
+
+
+            received +=
+            result.value.length;
+
+
+            const now =
+            performance.now();
+
+
+            const elapsed =
+            (now - lastTime) / 1000;
+
+
+            if(elapsed >= 0.2){
+
+                const bytesNow =
+                received - lastBytes;
+
+
+                const mbps =
+                (bytesNow / elapsed) /
+                (1024 * 1024);
+
+
+                speeds.push(mbps);
+
+
+                if(mbps > maxSpeed){
+
+                    maxSpeed = mbps;
+
+                }
+
+
+                speedEl.textContent =
+                mbps.toFixed(2);
+
+
+                currentEl.textContent =
+                mbps.toFixed(2) +
+                " MB/s";
+
+
+                const avg =
+                speeds.reduce(
+                    (a,b) => a+b,
+                    0
+                ) /
+                speeds.length;
+
+
+                averageEl.textContent =
+                avg.toFixed(2) +
+                " MB/s";
+
+
+                maximumEl.textContent =
+                maxSpeed.toFixed(2) +
+                " MB/s";
+
+
+                lastTime = now;
+
+                lastBytes = received;
+
+            }
+
+        }
+
+
+        const endTime =
+        performance.now();
+
+
+        const totalSeconds =
+        (endTime - startTime) / 1000;
+
+
+        const finalSpeed =
+        (received / totalSeconds) /
+        (1024 * 1024);
+
+
+        speedEl.textContent =
+        finalSpeed.toFixed(2);
+
+
+        currentEl.textContent =
+        finalSpeed.toFixed(2) +
+        " MB/s";
+
+
+        statusEl.textContent =
+        "Real test completed";
+
+
+        if(finalSpeed >= 1800){
+
+            statusEl.textContent =
+            "Target 1800 MB/s reached!";
+
+        }
+
+
+    }catch(error){
+
+        console.error(error);
+
+
+        statusEl.textContent =
+        "Test failed. Check internet or try again.";
+
+        speedEl.textContent =
+        "0.00";
+
+    }
+
+
+    startBtn.disabled = false;
+
+    startBtn.textContent =
+    "TEST AGAIN";
+
+}
+
+</script>
+
+</body>
+</html>
