@@ -316,7 +316,8 @@
   .profile-grid {
     display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; padding: 3px 0 90px;
   }
-  .profile-grid-item { aspect-ratio: 1; background: var(--line); overflow: hidden; position: relative; }
+  .profile-grid-item { aspect-ratio: 1; background: var(--line); overflow: hidden; position: relative; transition: transform .12s ease; }
+  .profile-grid-item:active { transform: scale(0.96); }
   .profile-grid-item img, .profile-grid-item video { width: 100%; height: 100%; object-fit: cover; }
   .profile-grid-item.text-only {
     display: flex; align-items: center; justify-content: center; padding: 8px;
@@ -2038,6 +2039,8 @@ function renderShareAppsRow() {
 function renderOwnPostShareSheet() {
   const myUid = state.user ? state.user.uid : null;
   const friends = myUid ? (state.allUsers || []).filter(u => (u.followers || []).includes(myUid)).slice(0, 12) : [];
+  const myPinnedPosts = (state.myUserDoc && state.myUserDoc.pinnedPosts) || [];
+  const pinLabel = (activePostId && myPinnedPosts.includes(activePostId)) ? "Unpin" : "Pin";
   return `
     <div class="sheet-overlay" id="shareOverlay"></div>
     <div class="bottom-sheet" id="shareSheet">
@@ -2055,7 +2058,7 @@ function renderOwnPostShareSheet() {
       <div class="sheet-row" id="shareActionsRow" style="margin-top:2px;">
         <button class="sheet-item" id="shareAnalytics"><span class="sheet-icon" style="background:#8e44ad">📊</span>Analytics</button>
         <button class="sheet-item" id="shareDownload"><span class="sheet-icon" style="background:#0F6E56">⬇️</span>Download</button>
-        <button class="sheet-item" id="sharePinOwn"><span class="sheet-icon" style="background:#D85A30">📌</span>Pin</button>
+        <button class="sheet-item" id="sharePinOwn"><span class="sheet-icon" style="background:#D85A30">📌</span>${pinLabel}</button>
         <button class="sheet-item" id="shareGroup"><span class="sheet-icon" style="background:#3b82f6">👥</span>Create group</button>
         <button class="sheet-item" id="shareEditOwn"><span class="sheet-icon" style="background:#6b6860">✏️</span>Edit post</button>
         <button class="sheet-item" id="sharePrivacyOwn"><span class="sheet-icon" style="background:#0F6E56">🔒</span>Privacy settings</button>
@@ -4468,9 +4471,18 @@ function renderProfileScreen() {
 
   // Tapping a grid item opens that post; the small pin badge (when present) is its own
   // click target for pinning/unpinning, so opening a video no longer accidentally pins it.
+  // A long-press on your own thumbnail opens the same quick-actions sheet (Edit/Pin/Privacy/
+  // Delete) as TikTok's own profile grid — no full open needed just to manage the post.
   activeTab.list.forEach(p => {
     const openEl = document.getElementById(`gridopen-${p.id}`);
-    if (openEl) openEl.onclick = () => openPostViewer(p.id);
+    if (openEl) {
+      let suppressNextClick = false;
+      openEl.onclick = () => {
+        if (suppressNextClick) { suppressNextClick = false; return; }
+        openPostViewer(p.id);
+      };
+      if (isOwn) attachGridLongPress(openEl, p.id, () => { suppressNextClick = true; });
+    }
     const pinToggle = document.getElementById(`gridpintoggle-${p.id}`);
     if (pinToggle) pinToggle.onclick = (e) => { e.stopPropagation(); togglePinPost(p.id); };
   });
@@ -4501,6 +4513,33 @@ function openPostViewer(postId) {
   wireFsCommentsHandlers();
 }
 
+const MAX_PINNED_POSTS = 3;
+
+/* TikTok's own profile grid has no visible "⋯" on a thumbnail — a long-press on your own
+   video/photo is what opens the quick-actions sheet (Pin/Privacy/Delete/Edit). This mirrors
+   that: hold ~450ms to open the owner menu, and suppress the tap-to-open that would otherwise
+   fire right after. */
+function attachGridLongPress(el, postId, onFire) {
+  let timer = null;
+  const clear = () => { if (timer) { clearTimeout(timer); timer = null; } };
+  const start = () => {
+    clear();
+    timer = setTimeout(() => {
+      timer = null;
+      if (onFire) onFire();
+      if (navigator.vibrate) navigator.vibrate(15);
+      openGridOwnerMenu(postId);
+    }, 450);
+  };
+  el.addEventListener("touchstart", start, { passive: true });
+  el.addEventListener("touchend", clear);
+  el.addEventListener("touchmove", clear);
+  el.addEventListener("touchcancel", clear);
+  el.addEventListener("mousedown", start);
+  el.addEventListener("mouseup", clear);
+  el.addEventListener("mouseleave", clear);
+}
+
 function renderProfileGrid(posts, pinnedPosts, isOwn) {
   return `
     <div class="profile-grid">
@@ -4522,14 +4561,9 @@ function renderProfileGrid(posts, pinnedPosts, isOwn) {
   `;
 }
 
-/* TikTok allows at most 3 pinned posts on a profile. There's no separate drag-to-reorder UI for
-   pins on TikTok either — order is simply "most recently pinned sits leftmost", so pinning always
-   unshifts the post to the front and unpinning removes it. Storing the array directly (instead of
-   arrayUnion, which only appends) is what makes that ordering possible. */
-const MAX_PINNED_POSTS = 3;
 function togglePinPost(postId) {
   const myUid = state.user.uid;
-  const pinnedPosts = (state.profile && state.profile.pinnedPosts) || [];
+  const pinnedPosts = (state.myUserDoc && state.myUserDoc.pinnedPosts) || [];
   const isPinned = pinnedPosts.includes(postId);
   if (!isPinned && pinnedPosts.length >= MAX_PINNED_POSTS) {
     showToast(`You can only pin up to ${MAX_PINNED_POSTS} posts. Unpin one first.`);
@@ -5266,7 +5300,8 @@ function mailboxIconSvg() { return `<svg width="44" height="44" viewBox="0 0 24 
 
 /* ================= Share sheet: handlers ================= */
 function wireSheetHandlers() {
-  document.getElementById("shareOverlay").onclick = closeSheets;
+  const shareOverlay = document.getElementById("shareOverlay");
+  if (shareOverlay) shareOverlay.onclick = closeSheets;
   const ownerOverlay = document.getElementById("ownerOverlay");
   if (ownerOverlay) ownerOverlay.onclick = closeSheets;
 
@@ -5482,10 +5517,34 @@ function openOwnerMenu(postId) {
   document.querySelectorAll("#privacyOptions .privacy-option").forEach(btn => {
     btn.classList.toggle("selected", btn.dataset.level === currentLevel);
   });
+  const pinBtn = document.getElementById("pinPostBtn");
+  if (pinBtn) {
+    const myPinnedPosts = (state.myUserDoc && state.myUserDoc.pinnedPosts) || [];
+    pinBtn.textContent = myPinnedPosts.includes(postId) ? "📌 Unpin from profile" : "📌 Pin to profile";
+  }
+}
+
+/* Long-pressing your own thumbnail in the profile grid opens the same quick-actions sheet,
+   but the grid screen doesn't otherwise embed one (it would collide with the copy inside the
+   full-screen post viewer's own overlay). So this builds a throwaway one, appended straight to
+   body, and closeSheets() removes it again — never leaving a second #ownerSheet in the DOM. */
+function openGridOwnerMenu(postId) {
+  const existing = document.getElementById("gridOwnerMenuOverlay");
+  if (existing) existing.remove();
+  const wrap = document.createElement("div");
+  wrap.id = "gridOwnerMenuOverlay";
+  wrap.innerHTML = renderOwnerSheet();
+  document.body.appendChild(wrap);
+  requestAnimationFrame(() => {
+    wireSheetHandlers();
+    openOwnerMenu(postId);
+  });
 }
 
 function closeSheets() {
   document.querySelectorAll(".sheet-overlay, .bottom-sheet").forEach(el => el.classList.remove("open"));
+  const gridOwnerWrap = document.getElementById("gridOwnerMenuOverlay");
+  if (gridOwnerWrap) gridOwnerWrap.remove();
   activePostId = null;
   activeFollowListRemoveUid = null;
 }
